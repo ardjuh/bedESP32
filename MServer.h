@@ -39,6 +39,11 @@ private:
                     "ESP32 light server\n");
     }
 
+    void getLightState()
+    {
+        server.send(200, "text/plain", light.isOn() ? "ON\n" : "OFF\n");
+    }
+
     void handleNotFound()
     {
         server.send(404, "text/plain",
@@ -82,6 +87,8 @@ public:
                   { handleLightOff(); });
         server.on("/light/toggle", HTTP_GET, [this]()
                   { handleLightToggle(); });
+        server.on("/light/state", HTTP_GET, [this]()
+                  { getLightState(); });
         server.onNotFound([this]()
                           { handleNotFound(); });
         server.begin();
