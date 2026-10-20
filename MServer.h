@@ -71,13 +71,6 @@ public:
         Serial.println(ssid);
         Serial.print("Local ESP32 IP: ");
         Serial.println(WiFi.localIP());
-        Serial.print("WiFi gateway: ");
-        Serial.println(WiFi.gatewayIP());
-        Serial.print("WiFi subnet: ");
-        Serial.println(WiFi.subnetMask());
-        Serial.print("WiFi RSSI: ");
-        Serial.print(WiFi.RSSI());
-        Serial.println(" dBm");
 
         server.on("/", HTTP_GET, [this]()
                   { handleRoot(); });
