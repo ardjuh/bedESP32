@@ -9,8 +9,12 @@
 class MServer
 {
 private:
+    static constexpr unsigned long RECONNECT_INTERVAL_MS = 10000;
+
     MLight &light;
     WebServer server{80};
+    unsigned long lastReconnectAttempt = 0;
+    bool wasConnected = false;
 
     void handleLightOn()
     {
@@ -55,22 +59,12 @@ public:
 
     void begin()
     {
-
         WiFi.mode(WIFI_STA);
+        WiFi.setAutoReconnect(true);
         WiFi.begin(ssid, password);
+        lastReconnectAttempt = millis();
         Serial.print("\nConnecting to ");
         Serial.println(ssid);
-
-        while (WiFi.status() != WL_CONNECTED)
-        {
-            Serial.print(".");
-            delay(100);
-        }
-
-        Serial.print("\nConnected to ");
-        Serial.println(ssid);
-        Serial.print("Local ESP32 IP: ");
-        Serial.println(WiFi.localIP());
 
         server.on("/", HTTP_GET, [this]()
                   { handleRoot(); });
@@ -90,6 +84,29 @@ public:
     void loop()
     {
         server.handleClient();
+
+        const bool connected = WiFi.status() == WL_CONNECTED;
+        if (connected && !wasConnected)
+        {
+            wasConnected = true;
+            Serial.print("\nConnected to ");
+            Serial.println(ssid);
+            Serial.print("Local ESP32 IP: ");
+            Serial.println(WiFi.localIP());
+        }
+        else if (!connected && wasConnected)
+        {
+            wasConnected = false;
+            Serial.println("\nWiFi connection lost");
+        }
+
+        const unsigned long now = millis();
+        if (!connected && now - lastReconnectAttempt >= RECONNECT_INTERVAL_MS)
+        {
+            lastReconnectAttempt = now;
+            Serial.println("Retrying WiFi connection...");
+            WiFi.begin(ssid, password);
+        }
     }
 };
 
