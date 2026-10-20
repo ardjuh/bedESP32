@@ -36,13 +36,13 @@ private:
     void handleRoot()
     {
         server.send(200, "text/plain",
-                    "ESP32 light server\nUse /light/on or /light/off.\n");
+                    "ESP32 light server\n");
     }
 
     void handleNotFound()
     {
         server.send(404, "text/plain",
-                    "Not found. Use /light/on or /light/off.\n");
+                    "Not found :(\n");
     }
 
 public:
@@ -74,11 +74,16 @@ public:
         Serial.print(WiFi.RSSI());
         Serial.println(" dBm");
 
-        server.on("/", HTTP_GET, [this]() { handleRoot(); });
-        server.on("/light/on", HTTP_GET, [this]() { handleLightOn(); });
-        server.on("/light/off", HTTP_GET, [this]() { handleLightOff(); });
-        server.on("/light/toggle", HTTP_GET, [this]() { handleLightToggle(); });
-        server.onNotFound([this]() { handleNotFound(); });
+        server.on("/", HTTP_GET, [this]()
+                  { handleRoot(); });
+        server.on("/light/on", HTTP_GET, [this]()
+                  { handleLightOn(); });
+        server.on("/light/off", HTTP_GET, [this]()
+                  { handleLightOff(); });
+        server.on("/light/toggle", HTTP_GET, [this]()
+                  { handleLightToggle(); });
+        server.onNotFound([this]()
+                          { handleNotFound(); });
         server.begin();
     }
 
