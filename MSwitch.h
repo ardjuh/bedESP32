@@ -17,7 +17,7 @@ public:
 
     void begin()
     {
-        pinMode(GPIO1_PIN, INPUT);
+        pinMode(GPIO1_PIN, INPUT_PULLDOWN);
     }
 
     void loop()
