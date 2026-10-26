@@ -6,7 +6,10 @@
 #include <math.h>
 
 constexpr uint8_t LIGHT_PIN = 2;
-constexpr uint16_t LIGHT_PIXEL_COUNT = 10;
+constexpr uint16_t LIGHT_FIRST_PIXEL = 100;
+constexpr uint16_t LIGHT_PIXEL_COUNT = 11;
+constexpr uint16_t LIGHT_STRIP_PIXEL_COUNT =
+    LIGHT_FIRST_PIXEL + LIGHT_PIXEL_COUNT;
 constexpr uint8_t LIGHT_BRIGHTNESS = 128;
 constexpr float NETHERLANDS_LATITUDE = 52.3676f;
 constexpr float NETHERLANDS_LONGITUDE = 4.9041f;
@@ -18,7 +21,7 @@ private:
     uint32_t currentColor = 0;
     int lastScheduleMinute = -1;
     Adafruit_NeoPixel strip{
-        LIGHT_PIXEL_COUNT, LIGHT_PIN, NEO_GRB + NEO_KHZ800};
+        LIGHT_STRIP_PIXEL_COUNT, LIGHT_PIN, NEO_GRB + NEO_KHZ800};
 
     void setColor(uint32_t color)
     {
@@ -26,7 +29,11 @@ private:
         {
             return;
         }
-        strip.fill(color);
+        for (uint16_t pixel = LIGHT_FIRST_PIXEL;
+             pixel < LIGHT_FIRST_PIXEL + LIGHT_PIXEL_COUNT; ++pixel)
+        {
+            strip.setPixelColor(pixel, color);
+        }
         strip.show();
         currentColor = color;
     }
