@@ -94,16 +94,13 @@ private:
     void setLight(bool enabled)
     {
         lightState = enabled;
+        lastScheduleMinute = -1;
         if (!enabled)
         {
-            lastScheduleMinute = -1;
             setColor(0);
             return;
         }
-        lastScheduleMinute = -1;
         updateColorByTime();
-        Serial.print("Light state changed to: ");
-        Serial.println(lightState ? "ON" : "OFF");
     }
 
     void updateColorByTime()
