@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <WebServer.h>
+#include <cstdlib>
 #include "MLight.h"
 #include "password.h"
 
@@ -40,12 +41,38 @@ private:
     void handleRoot()
     {
         server.send(200, "text/plain",
-                    "ESP32 light server\n");
+                    "ESP32 light server\n"
+                    "Set brightness: /light/brightness?value=0..255\n");
     }
 
     void getLightState()
     {
         server.send(200, "text/plain", light.isOn() ? "ON\n" : "OFF\n");
+    }
+
+    void handleLightBrightness()
+    {
+        if (!server.hasArg("value"))
+        {
+            server.send(400, "text/plain",
+                        "Missing brightness value; use /light/brightness?value=0..255\n");
+            return;
+        }
+
+        const String value = server.arg("value");
+        char *end = nullptr;
+        const long brightness = strtol(value.c_str(), &end, 10);
+        if (value.isEmpty() || end == value.c_str() || *end != '\0' ||
+            brightness < 0 || brightness > 255)
+        {
+            server.send(400, "text/plain",
+                        "Brightness must be an integer from 0 to 255\n");
+            return;
+        }
+
+        light.setBrightness(static_cast<uint8_t>(brightness));
+        server.send(200, "text/plain",
+                    "Brightness: " + String(light.getBrightness()) + "\n");
     }
 
     void handleNotFound()
@@ -78,6 +105,8 @@ public:
                   { handleLightToggle(); });
         server.on("/light/state", HTTP_GET, [this]()
                   { getLightState(); });
+        server.on("/light/brightness", HTTP_GET, [this]()
+                  { handleLightBrightness(); });
         server.onNotFound([this]()
                           { handleNotFound(); });
         server.begin();

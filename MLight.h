@@ -16,6 +16,7 @@ class MLight
 private:
     bool lightState = false;
     uint32_t currentColor = 0;
+    uint8_t currentBrightness = LIGHT_BRIGHTNESS;
     int lastScheduleMinute = -1;
     Adafruit_NeoPixel strip{
         LIGHT_PIXEL_COUNT, LIGHT_PIN, NEO_GRB + NEO_KHZ800};
@@ -94,7 +95,7 @@ public:
     void begin()
     {
         strip.begin();
-        strip.setBrightness(LIGHT_BRIGHTNESS);
+        strip.setBrightness(currentBrightness);
         setLight(false);
     }
 
@@ -116,6 +117,18 @@ public:
     bool isOn() const
     {
         return lightState;
+    }
+
+    void setBrightness(uint8_t brightness)
+    {
+        currentBrightness = brightness;
+        strip.setBrightness(brightness);
+        strip.show();
+    }
+
+    uint8_t getBrightness() const
+    {
+        return currentBrightness;
     }
 };
 
