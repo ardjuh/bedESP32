@@ -65,6 +65,8 @@ public:
         lastReconnectAttempt = millis();
         Serial.print("\nConnecting to ");
         Serial.println(ssid);
+        Serial.print("Local ESP32 IP: ");
+        Serial.println(WiFi.localIP());
 
         server.on("/", HTTP_GET, [this]()
                   { handleRoot(); });
@@ -105,6 +107,7 @@ public:
         {
             lastReconnectAttempt = now;
             Serial.println("Retrying WiFi connection...");
+            WiFi.disconnect(false, false);
             WiFi.begin(ssid, password);
         }
     }
