@@ -126,6 +126,12 @@ public:
         strip.show();
     }
 
+    void setRgb(uint8_t red, uint8_t green, uint8_t blue)
+    {
+        setLight(true);
+        setColor(strip.Color(red, green, blue));
+    }
+
     uint8_t getBrightness() const
     {
         return currentBrightness;

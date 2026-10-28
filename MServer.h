@@ -42,7 +42,8 @@ private:
     {
         server.send(200, "text/plain",
                     "ESP32 light server\n"
-                    "Set brightness: /light/brightness?value=0..255\n");
+                    "Set brightness: /light/brightness?value=0..255\n"
+                    "Set RGB: /light/rgb?r=0..255&g=0..255&b=0..255\n");
     }
 
     void getLightState()
@@ -73,6 +74,40 @@ private:
         light.setBrightness(static_cast<uint8_t>(brightness));
         server.send(200, "text/plain",
                     "Brightness: " + String(light.getBrightness()) + "\n");
+    }
+
+    void handleLightRgb()
+    {
+        if (!server.hasArg("r") || !server.hasArg("g") || !server.hasArg("b"))
+        {
+            server.send(400, "text/plain",
+                        "Missing RGB value; use /light/rgb?r=0..255&g=0..255&b=0..255\n");
+            return;
+        }
+
+        const String redValue = server.arg("r");
+        const String greenValue = server.arg("g");
+        const String blueValue = server.arg("b");
+        char *redEnd = nullptr;
+        char *greenEnd = nullptr;
+        char *blueEnd = nullptr;
+        const long red = strtol(redValue.c_str(), &redEnd, 10);
+        const long green = strtol(greenValue.c_str(), &greenEnd, 10);
+        const long blue = strtol(blueValue.c_str(), &blueEnd, 10);
+        if (redValue.isEmpty() || redEnd == redValue.c_str() || *redEnd != '\0' ||
+            greenValue.isEmpty() || greenEnd == greenValue.c_str() || *greenEnd != '\0' ||
+            blueValue.isEmpty() || blueEnd == blueValue.c_str() || *blueEnd != '\0' ||
+            red < 0 || red > 255 || green < 0 || green > 255 || blue < 0 || blue > 255)
+        {
+            server.send(400, "text/plain",
+                        "RGB values must each be integers from 0 to 255\n");
+            return;
+        }
+
+        light.setRgb(static_cast<uint8_t>(red), static_cast<uint8_t>(green),
+                     static_cast<uint8_t>(blue));
+        server.send(200, "text/plain",
+                    "RGB: " + String(red) + "," + String(green) + "," + String(blue) + "\n");
     }
 
     void handleNotFound()
@@ -107,6 +142,8 @@ public:
                   { getLightState(); });
         server.on("/light/brightness", HTTP_GET, [this]()
                   { handleLightBrightness(); });
+        server.on("/light/rgb", HTTP_GET, [this]()
+                  { handleLightRgb(); });
         server.onNotFound([this]()
                           { handleNotFound(); });
         server.begin();
