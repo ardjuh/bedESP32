@@ -71,7 +71,11 @@ private:
         lastScheduleMinute = currentMinute;
 
         uint32_t color;
-        if (currentMinute < 12 * 60)
+        if (currentMinute < 6 * 60)
+        {
+            color = strip.Color(255, 0, 0);
+        }
+        else if (currentMinute < 12 * 60)
         {
             color = strip.Color(128, 128, 255);
         }
