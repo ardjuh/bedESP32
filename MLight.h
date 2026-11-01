@@ -58,11 +58,13 @@ private:
             // Otherwise the light stays logically "on" but never actually emits any color.
             if (currentColor == 0)
             {
-                setColor(strip.Color(255, 255, 255));
+                setColor(strip.Color(255, 160, 55));
             }
+            Serial.println("No local time");
             return;
         }
 
+        Serial.println(localTime.tm_hour);
         const int currentMinute = localTime.tm_hour * 60 + localTime.tm_min;
         if (currentMinute == lastScheduleMinute)
         {
@@ -85,11 +87,11 @@ private:
         }
         else if (currentMinute >= 19 * 60)
         {
-            color = strip.Color(255, 70, 70);
+            color = strip.Color(255, 110, 20);
         }
         else
         {
-            color = strip.Color(255, 255, 255);
+            color = strip.Color(255, 160, 55);
         }
         setColor(color);
     }
